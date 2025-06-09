@@ -295,53 +295,100 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
 }
 
 .page-header h1 {
-  color: #2c3e50;
+  color: var(--text-primary);
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .add-btn {
-  background: #27ae60;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.add-btn:hover::before {
+  left: 100%;
 }
 
 .add-btn:hover {
-  background: #229954;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--spacing-xl);
 }
 
 .no-data {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 3rem;
-  color: #7f8c8d;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: var(--spacing-2xl);
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  font-size: 1.1rem;
 }
 
 .project-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1.5rem;
-  transition: transform 0.2s;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
 }
 
 .project-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 .project-header {
@@ -362,29 +409,50 @@ export default {
 }
 
 .edit-btn, .delete-btn {
-  padding: 0.25rem 0.5rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-btn::before, .delete-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.edit-btn:hover::before, .delete-btn:hover::before {
+  left: 100%;
 }
 
 .edit-btn {
-  background: #3498db;
+  background: linear-gradient(135deg, var(--info-color) 0%, #2563eb 100%);
   color: white;
 }
 
 .edit-btn:hover {
-  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .delete-btn {
-  background: #e74c3c;
+  background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-hover) 100%);
   color: white;
 }
 
 .delete-btn:hover {
-  background: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .project-info {
@@ -446,17 +514,37 @@ export default {
 }
 
 .view-transactions-btn {
-  background: #3498db;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.view-transactions-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.view-transactions-btn:hover::before {
+  left: 100%;
 }
 
 .view-transactions-btn:hover {
-  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .project-transactions {

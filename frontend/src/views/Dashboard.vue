@@ -1,31 +1,31 @@
 <template>
   <div class="dashboard">
-    <h1>仪表盘</h1>
-    
-    <div class="welcome-section">
+    <h1 class="fade-in">仪表盘</h1>
+
+    <div class="welcome-section fade-in">
       <h2>欢迎回来，{{ user?.username }}！</h2>
       <p>这里是您的财务概览</p>
     </div>
-    
+
     <div class="stats-grid">
-      <div class="stat-card">
+      <div class="stat-card fade-in" style="animation-delay: 0.1s">
         <h3>总收入</h3>
         <div class="stat-value income">¥ {{ totalIncome.toFixed(2) }}</div>
       </div>
-      
-      <div class="stat-card">
+
+      <div class="stat-card fade-in" style="animation-delay: 0.2s">
         <h3>总支出</h3>
         <div class="stat-value expense">¥ {{ totalExpense.toFixed(2) }}</div>
       </div>
-      
-      <div class="stat-card">
+
+      <div class="stat-card fade-in" style="animation-delay: 0.3s">
         <h3>净收入</h3>
         <div class="stat-value" :class="netIncome >= 0 ? 'income' : 'expense'">
           ¥ {{ netIncome.toFixed(2) }}
         </div>
       </div>
-      
-      <div class="stat-card">
+
+      <div class="stat-card fade-in" style="animation-delay: 0.4s">
         <h3>账户数量</h3>
         <div class="stat-value">{{ accountCount }}</div>
       </div>
@@ -215,66 +215,131 @@ export default {
 
 <style scoped>
 .dashboard {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .dashboard h1 {
-  color: #2c3e50;
-  margin-bottom: 2rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xl);
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .welcome-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--primary-light) 100%);
+  padding: var(--spacing-2xl);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
 }
 
 .welcome-section h2 {
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-section p {
-  color: #7f8c8d;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .stat-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--bg-primary);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
   text-align: center;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 .stat-card h3 {
-  color: #7f8c8d;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.875rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .stat-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-value.income {
-  color: #27ae60;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-value.expense {
-  color: #e74c3c;
+  background: linear-gradient(135deg, var(--danger-color) 0%, #f87171 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .quick-actions {
