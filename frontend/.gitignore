@@ -1,0 +1,79 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Dependency directories
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Compiled files
+/dist
+/out
+/public/build
+/build
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# User-specific files
+.env.local
+.env.*.local
+!/.env.example
+
+# Test results and coverage
+/coverage
+/.nyc_output
+/.vitest-base.js
+.vite-node-sourcemap-cache
+.v8-coverage/
+nyc_output/
+junit.xml
+TESTS-*.xml
+
+# Cache files
+.npm/
+.yarn-cache/
+.eslintcache
+.stylelintcache
+.cache
+.cache/
+.nuxt/
+.nitro/
+.output/
+
+# Temporary files
+*.tmp
+
+# Mac files
+.AppleDouble
+.LSOverride
+
+# End-of-line markers
+.cr-build-comp-known-good-build-cache-subdirs
+
+# Lockfiles (optional, but often committed)
+# If you DO NOT want to commit your lockfile, uncomment the line below.
+# By default, it's best practice to commit it.
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
