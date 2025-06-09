@@ -19,6 +19,7 @@
           <div>类型</div>
           <div>金额</div>
           <div>账户</div>
+          <div>项目</div>
           <div>操作</div>
         </div>
         
@@ -30,20 +31,21 @@
           <div>{{ formatDate(transaction.transaction_date) }}</div>
           <div>{{ transaction.title || '无标题' }}</div>
           <div>
-            <span 
+            <span
               class="type-badge"
               :class="transaction.type"
             >
               {{ transaction.type === 'income' ? '收入' : '支出' }}
             </span>
           </div>
-          <div 
+          <div
             class="amount"
             :class="transaction.type"
           >
             {{ transaction.type === 'income' ? '+' : '-' }}¥{{ transaction.amount }}
           </div>
           <div>{{ getAccountName(transaction.account_id) }}</div>
+          <div>{{ getProjectName(transaction.project_id) }}</div>
           <div class="actions">
             <button @click="editTransaction(transaction)" class="edit-btn">编辑</button>
             <button @click="deleteTransaction(transaction.id)" class="delete-btn">删除</button>
@@ -86,7 +88,17 @@
               </option>
             </select>
           </div>
-          
+
+          <div class="form-group">
+            <label>项目</label>
+            <select v-model="form.project_id">
+              <option value="">请选择项目（可选）</option>
+              <option v-for="project in projects" :key="project.id" :value="project.id">
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
+
           <div class="form-group">
             <label>交易日期</label>
             <input v-model="form.transaction_date" type="datetime-local" required />
@@ -118,6 +130,7 @@ export default {
   setup() {
     const transactions = ref([])
     const accounts = ref([])
+    const projects = ref([])
     const showAddModal = ref(false)
     const showEditModal = ref(false)
     const loading = ref(false)
@@ -128,6 +141,7 @@ export default {
       type: '',
       amount: '',
       account_id: '',
+      project_id: '',
       transaction_date: '',
       notes: ''
     })
@@ -138,6 +152,7 @@ export default {
         type: '',
         amount: '',
         account_id: '',
+        project_id: '',
         transaction_date: new Date().toISOString().slice(0, 16),
         notes: ''
       }
@@ -150,6 +165,12 @@ export default {
     const getAccountName = (accountId) => {
       const account = accounts.value.find(a => a.id === accountId)
       return account ? account.name : '未知账户'
+    }
+
+    const getProjectName = (projectId) => {
+      if (!projectId) return '无项目'
+      const project = projects.value.find(p => p.id === projectId)
+      return project ? project.name : '未知项目'
     }
     
     const fetchTransactions = async () => {
@@ -169,6 +190,15 @@ export default {
         console.error('Failed to fetch accounts:', error)
       }
     }
+
+    const fetchProjects = async () => {
+      try {
+        const response = await api.get('/projects/')
+        projects.value = response.data
+      } catch (error) {
+        console.error('Failed to fetch projects:', error)
+      }
+    }
     
     const saveTransaction = async () => {
       loading.value = true
@@ -177,7 +207,8 @@ export default {
         const data = {
           ...form.value,
           amount: parseFloat(form.value.amount),
-          currency: 'CNY'
+          currency: 'CNY',
+          project_id: form.value.project_id || null
         }
         
         if (showEditModal.value) {
@@ -202,6 +233,7 @@ export default {
         type: transaction.type,
         amount: transaction.amount,
         account_id: transaction.account_id,
+        project_id: transaction.project_id || '',
         transaction_date: new Date(transaction.transaction_date).toISOString().slice(0, 16),
         notes: transaction.notes || ''
       }
@@ -231,18 +263,21 @@ export default {
     onMounted(() => {
       fetchTransactions()
       fetchAccounts()
+      fetchProjects()
       resetForm()
     })
     
     return {
       transactions,
       accounts,
+      projects,
       showAddModal,
       showEditModal,
       loading,
       form,
       formatDate,
       getAccountName,
+      getProjectName,
       saveTransaction,
       editTransaction,
       deleteTransaction,

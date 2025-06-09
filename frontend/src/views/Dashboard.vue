@@ -51,22 +51,53 @@
       </div>
     </div>
     
+    <div class="project-summary">
+      <h3>项目汇总</h3>
+      <div v-if="projectSummaries.length === 0" class="no-data">
+        暂无项目数据
+      </div>
+      <div v-else class="project-list">
+        <div
+          v-for="project in projectSummaries"
+          :key="project.id"
+          class="project-summary-item"
+        >
+          <div class="project-info">
+            <div class="project-name">{{ project.name }}</div>
+            <div class="project-stats">
+              <span class="stat">{{ project.transaction_count }} 笔交易</span>
+            </div>
+          </div>
+          <div class="project-amounts">
+            <div class="amount income">收入: ¥{{ project.total_income.toFixed(2) }}</div>
+            <div class="amount expense">支出: ¥{{ project.total_expense.toFixed(2) }}</div>
+            <div class="amount net" :class="project.net_amount >= 0 ? 'income' : 'expense'">
+              净额: ¥{{ project.net_amount.toFixed(2) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="recent-transactions">
       <h3>最近交易</h3>
       <div v-if="recentTransactions.length === 0" class="no-data">
         暂无交易记录
       </div>
       <div v-else class="transaction-list">
-        <div 
-          v-for="transaction in recentTransactions" 
+        <div
+          v-for="transaction in recentTransactions"
           :key="transaction.id"
           class="transaction-item"
         >
           <div class="transaction-info">
             <div class="transaction-title">{{ transaction.title || '无标题' }}</div>
             <div class="transaction-date">{{ formatDate(transaction.transaction_date) }}</div>
+            <div class="transaction-project" v-if="transaction.project_id">
+              项目: {{ getProjectName(transaction.project_id) }}
+            </div>
           </div>
-          <div 
+          <div
             class="transaction-amount"
             :class="transaction.type"
           >
@@ -91,6 +122,8 @@ export default {
     
     const transactions = ref([])
     const accounts = ref([])
+    const projects = ref([])
+    const projectSummaries = ref([])
     
     const totalIncome = computed(() => {
       return transactions.value
@@ -117,18 +150,47 @@ export default {
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleDateString('zh-CN')
     }
+
+    const getProjectName = (projectId) => {
+      const project = projects.value.find(p => p.id === projectId)
+      return project ? project.name : '未知项目'
+    }
     
     const fetchData = async () => {
       try {
-        const [transactionsRes, accountsRes] = await Promise.all([
+        const [transactionsRes, accountsRes, projectsRes] = await Promise.all([
           api.get('/transactions/'),
-          api.get('/accounts/')
+          api.get('/accounts/'),
+          api.get('/projects/')
         ])
-        
+
         transactions.value = transactionsRes.data
         accounts.value = accountsRes.data
+        projects.value = projectsRes.data
+
+        // 获取项目统计信息
+        await fetchProjectSummaries()
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error)
+      }
+    }
+
+    const fetchProjectSummaries = async () => {
+      try {
+        const summaries = []
+
+        for (const project of projects.value) {
+          const statsRes = await api.get(`/projects/${project.id}/stats`)
+          summaries.push({
+            ...project,
+            ...statsRes.data
+          })
+        }
+
+        // 按净收入排序，收入高的在前
+        projectSummaries.value = summaries.sort((a, b) => b.net_amount - a.net_amount)
+      } catch (error) {
+        console.error('Failed to fetch project summaries:', error)
       }
     }
     
@@ -143,7 +205,9 @@ export default {
       netIncome,
       accountCount,
       recentTransactions,
-      formatDate
+      projectSummaries,
+      formatDate,
+      getProjectName
     }
   }
 }
@@ -255,6 +319,79 @@ export default {
   margin-bottom: 0.5rem;
 }
 
+.project-summary {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.project-summary h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.project-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.project-info {
+  flex: 1;
+}
+
+.project-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-stats {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.project-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.amount {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.amount.income {
+  color: #27ae60;
+}
+
+.amount.expense {
+  color: #e74c3c;
+}
+
+.amount.net {
+  font-size: 1rem;
+  font-weight: bold;
+  border-top: 1px solid #ecf0f1;
+  padding-top: 0.25rem;
+  margin-top: 0.25rem;
+}
+
 .recent-transactions {
   background: white;
   padding: 2rem;
@@ -300,6 +437,12 @@ export default {
 .transaction-date {
   font-size: 0.9rem;
   color: #7f8c8d;
+}
+
+.transaction-project {
+  font-size: 0.8rem;
+  color: #3498db;
+  margin-top: 0.25rem;
 }
 
 .transaction-amount {

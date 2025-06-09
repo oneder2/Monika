@@ -29,13 +29,64 @@
           <div v-if="project.description" class="project-description">
             {{ project.description }}
           </div>
-          
+
           <div class="project-dates">
             <div v-if="project.start_date">
               开始日期: {{ formatDate(project.start_date) }}
             </div>
             <div v-if="project.end_date">
               结束日期: {{ formatDate(project.end_date) }}
+            </div>
+          </div>
+
+          <div class="project-stats" v-if="project.stats">
+            <div class="stat-item">
+              <span class="stat-label">总收入:</span>
+              <span class="stat-value income">¥{{ project.stats.total_income.toFixed(2) }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">总支出:</span>
+              <span class="stat-value expense">¥{{ project.stats.total_expense.toFixed(2) }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">净收入:</span>
+              <span class="stat-value" :class="project.stats.net_amount >= 0 ? 'income' : 'expense'">
+                ¥{{ project.stats.net_amount.toFixed(2) }}
+              </span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">交易数量:</span>
+              <span class="stat-value">{{ project.stats.transaction_count }}</span>
+            </div>
+          </div>
+
+          <div class="project-actions-bottom">
+            <button @click="toggleTransactions(project.id)" class="view-transactions-btn">
+              {{ showTransactions[project.id] ? '隐藏交易记录' : '查看交易记录' }}
+            </button>
+          </div>
+
+          <div v-if="showTransactions[project.id]" class="project-transactions">
+            <div v-if="projectTransactions[project.id] && projectTransactions[project.id].length === 0" class="no-transactions">
+              该项目暂无交易记录
+            </div>
+            <div v-else-if="projectTransactions[project.id]" class="transactions-list">
+              <div
+                v-for="transaction in projectTransactions[project.id]"
+                :key="transaction.id"
+                class="transaction-item"
+              >
+                <div class="transaction-info">
+                  <div class="transaction-title">{{ transaction.title || '无标题' }}</div>
+                  <div class="transaction-date">{{ formatDate(transaction.transaction_date) }}</div>
+                </div>
+                <div
+                  class="transaction-amount"
+                  :class="transaction.type"
+                >
+                  {{ transaction.type === 'income' ? '+' : '-' }}¥{{ transaction.amount }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -92,6 +143,8 @@ export default {
     const showEditModal = ref(false)
     const loading = ref(false)
     const editingId = ref(null)
+    const showTransactions = ref({})
+    const projectTransactions = ref({})
     
     const form = ref({
       name: '',
@@ -117,8 +170,43 @@ export default {
       try {
         const response = await api.get('/projects/')
         projects.value = response.data
+
+        // 为每个项目获取统计信息
+        for (const project of projects.value) {
+          await fetchProjectStats(project.id)
+        }
       } catch (error) {
         console.error('Failed to fetch projects:', error)
+      }
+    }
+
+    const fetchProjectStats = async (projectId) => {
+      try {
+        const response = await api.get(`/projects/${projectId}/stats`)
+        const project = projects.value.find(p => p.id === projectId)
+        if (project) {
+          project.stats = response.data
+        }
+      } catch (error) {
+        console.error('Failed to fetch project stats:', error)
+      }
+    }
+
+    const fetchProjectTransactions = async (projectId) => {
+      try {
+        const response = await api.get(`/projects/${projectId}/transactions`)
+        projectTransactions.value[projectId] = response.data
+      } catch (error) {
+        console.error('Failed to fetch project transactions:', error)
+        projectTransactions.value[projectId] = []
+      }
+    }
+
+    const toggleTransactions = async (projectId) => {
+      showTransactions.value[projectId] = !showTransactions.value[projectId]
+
+      if (showTransactions.value[projectId] && !projectTransactions.value[projectId]) {
+        await fetchProjectTransactions(projectId)
       }
     }
     
@@ -189,11 +277,14 @@ export default {
       showEditModal,
       loading,
       form,
+      showTransactions,
+      projectTransactions,
       formatDate,
       saveProject,
       editProject,
       deleteProject,
-      closeModal
+      closeModal,
+      toggleTransactions
     }
   }
 }
@@ -313,6 +404,116 @@ export default {
   gap: 0.25rem;
   font-size: 0.9rem;
   color: #7f8c8d;
+}
+
+.project-stats {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.stat-value.income {
+  color: #27ae60;
+}
+
+.stat-value.expense {
+  color: #e74c3c;
+}
+
+.project-actions-bottom {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.view-transactions-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.view-transactions-btn:hover {
+  background: #2980b9;
+}
+
+.project-transactions {
+  margin-top: 1rem;
+  border-top: 1px solid #ecf0f1;
+  padding-top: 1rem;
+}
+
+.no-transactions {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 1rem;
+  font-style: italic;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ecf0f1;
+}
+
+.transaction-info {
+  flex: 1;
+}
+
+.transaction-title {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.transaction-date {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.transaction-amount {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.transaction-amount.income {
+  color: #27ae60;
+}
+
+.transaction-amount.expense {
+  color: #e74c3c;
 }
 
 .modal-overlay {
