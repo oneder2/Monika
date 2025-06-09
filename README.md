@@ -1,302 +1,212 @@
-# Monika - 个人记账软件完整开发规划
+# Monika - 个人记账软件
 
-**版本**: 1.0
-**日期**: 2025年6月8日
-**状态**: 生产就绪 - Docker容器化完成
+<div align="center">
 
----
+![Monika Logo](https://img.shields.io/badge/Monika-Personal%20Finance-blue?style=for-the-badge)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-## 1. 项目概述
+**一个现代化的个人财务管理工具**
 
-**Monika** 是一个基于 Web 的个人记账软件，旨在为用户提供一个轻量、高效且功能强大的财务管理工具。项目采用前后端分离的现代化架构，注重异步性能、数据安全和用户体验。
+[快速开始](#-快速开始) • [功能特性](#-功能特性) • [技术栈](#-技术栈) • [部署指南](#-部署指南) • [开发文档](#-开发文档)
 
----
-
-## 2. 技术栈
-
-- **后端**: **FastAPI**
-  - *选型理由*: 基于 Python 3.7+ 的类型提示，提供高性能的异步 API。自动生成交互式文档（Swagger UI），极大方便了前后端联调。轻量级框架，非常适合本项目。
-- **前端**: **Vue.js**
-  - *选型理由*: 渐进式框架，上手快，生态丰富。其响应式数据绑定和组件化系统非常适合构建数据驱动的单页面应用（SPA）。
-- **数据库**: **SQLite**
-  - *选型理由*: 轻量级、无服务器的文件型数据库，零配置，非常适合个人项目或应用的初始开发阶段。可以无缝地嵌入到 FastAPI 应用中。
+</div>
 
 ---
 
-## 3. 核心业务功能
+## 📖 项目简介
 
-- **身份认证**: 提供安全的用户注册和登录系统。
-- **账务管理**: 以“账务项目”和“账务条目”两个层级，结构化地管理所有财务记录。
-- **分类与标签**: 提供固定分类和灵活标签两种体系，满足不同的统计和查询需求。
-- **预算管理**: 允许用户设定预算，并追踪执行情况。
-- **仪表盘与分析**: 通过可视化的图表和数据摘要，帮助用户洞察其财务状况。
+**Monika** 是一个基于 Web 的个人记账软件，采用现代化的前后端分离架构，为用户提供轻量、高效且功能强大的财务管理体验。
 
----
+### 🎯 设计理念
 
-## 4. 功能详细规划
+- **简洁易用**: 直观的用户界面，降低学习成本
+- **数据安全**: 本地部署，数据完全掌控
+- **高性能**: 异步架构，快速响应
+- **可扩展**: 模块化设计，易于功能扩展
 
-### 4.1. 身份认证 (Authentication)
+## 🚀 快速开始
 
-- **功能描述**:
-  1.  **注册**: 用户可以使用邮箱和密码创建新账户。
-  2.  **登录**: 用户通过邮箱和密码登录，系统返回认证 Token (如 JWT) 用于后续请求。
-  3.  **忘记密码**: 提供一个入口，为未来实现密码重置功能预留空间。
-- **关联数据库表**:
-  - 所有用户数据存储在 `users` 表中。
+### 前置要求
 
-### 4.2. 核心账务管理
+- Docker 20.10+
+- Docker Compose 2.0+
+- 2GB+ 可用内存
 
-#### 4.2.1. 账务项目 (Projects)
-
-- **功能描述**:
-  - "账务项目"是一个聚合单位，用于管理一组相关的账务条目。例如：“2025年春节旅行”、“房屋装修”等。
-  - 用户可以对项目进行增、删、改、查操作。
-  - 在主界面上，以项目的形式展示宏观的财务状况，并可展开查看其包含的详细条目。
-- **关联数据库表**:
-  - 新建 `projects` 表来存储项目信息。
-  - 在 `transactions` 表中添加 `project_id` 外键进行关联。
-
-#### 4.2.2. 账务条目 (Transactions)
-
-- **功能描述**:
-  - “账务条目”是系统中最小的记账单位，记录单笔收入或支出。
-  - 用户可以对条目进行增、删、改、查操作。
-  - 每条条目都必须关联一个**资金账户**和一个**分类**。
-- **关联数据库表**:
-  - `transactions` 表是系统的核心，存储所有条目细节。
-
-### 4.3. 仪表盘与数据分析 (Dashboard)
-
-- **功能描述**:
-  1.  **时间范围筛选**: 用户可以按天、周、月、季度、年等维度筛选数据。
-  2.  **数据总览**: 实时计算并显示指定时间范围内的总支出、总收入和净收入。
-  3.  **异常支出提醒**: 通过算法分析，高亮显示指定时间范围内，与用户消费习惯相比支出异常的条目或分类。
-      - *实现思路*: 计算某个分类在过去N个周期内的平均支出，若当前周期支出远超平均值（例如，超过2个标准差），则标记为异常。
-  4.  **数据可视化**: 使用图表（如饼图、折线图）展示分类支出占比、收支趋势等信息。
-- **关联数据库表**:
-  - 主要依赖 `transactions` 表的 `amount`, `type`, `transaction_date` 字段进行计算。
-  - `categories` 表为数据聚合和分析提供维度。
-
----
-
-## 5. 数据库设计详细指南
-
-本节完整定义了项目所需的所有数据表结构。
-
-### 5.1. 实体关系图 (ERD)
-
-```mermaid
-erDiagram
-    users {
-        int id PK
-        varchar username
-        varchar email
-    }
-    accounts {
-        int id PK
-        int user_id FK
-        varchar name
-        varchar type
-    }
-    projects {
-        int id PK
-        int user_id FK
-        varchar name
-        date start_date
-    }
-    categories {
-        int id PK
-        int user_id FK
-        varchar name
-        int parent_category_id FK
-    }
-    transactions {
-        int id PK
-        int user_id FK
-        int account_id FK
-        int project_id FK
-        int category_id FK
-        varchar type
-        decimal amount
-    }
-    tags {
-        int id PK
-        int user_id FK
-        varchar name
-    }
-    transaction_tags {
-        int transaction_id PK, FK
-        int tag_id PK, FK
-    }
-    budgets {
-        int id PK
-        int user_id FK
-        int category_id FK
-        decimal amount
-    }
-
-    users ||--o{ accounts : "拥有"
-    users ||--o{ projects : "创建"
-    users ||--o{ categories : "创建"
-    users ||--o{ transactions : "创建"
-    users ||--o{ tags : "创建"
-    users ||--o{ budgets : "设定"
-
-    accounts ||--o{ transactions : "关联"
-    projects ||--o{ transactions : "包含"
-    categories ||--o{ transactions : "归类于"
-    categories ||--o{ budgets : "关联"
-    transactions }|--|{ tags : "拥有"
-```
-
-### 5.2. 表格结构定义
-
-#### `users` - 用户表
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 用户唯一标识符 |
-| `username` | `VARCHAR(50)` | `UNIQUE`, `NOT NULL` | 用户名 |
-| `email` | `VARCHAR(100)`| `UNIQUE`, `NOT NULL` | 邮箱 |
-| `password_hash`| `VARCHAR(255)`| `NOT NULL` | 加密后的用户密码 |
-| `default_currency`| `VARCHAR(3)` | `NOT NULL`, `DEFAULT 'CNY'` | 默认货币 |
-| `created_at` | `TIMESTAMP` | `NOT NULL`, `DEFAULT CURRENT_TIMESTAMP` | 账户创建时间 |
-
-#### `accounts` - 资金账户表
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 账户唯一标识符 |
-| `user_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `users.id`) | 关联的用户 |
-| `name` | `VARCHAR(100)`| `NOT NULL` | 账户名称 (e.g., "招行储蓄卡") |
-| `type` | `VARCHAR(20)` | `NOT NULL` | 账户类型 (e.g., 'debit_card') |
-| `initial_balance`| `DECIMAL(10, 2)`| `NOT NULL`, `DEFAULT 0.00` | 初始余额 |
-| `is_active` | `BOOLEAN` | `NOT NULL`, `DEFAULT 1` | 账户是否仍在使用中 |
-
-#### **`projects` - 账务项目表 (新增)**
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 项目唯一标识符 |
-| `user_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `users.id`) | 关联的用户 |
-| `name` | `VARCHAR(100)`| `NOT NULL` | 项目名称 (e.g., "2025春节旅行") |
-| `description`| `TEXT` | | 项目的详细描述 |
-| `start_date`| `DATE` | | 项目开始日期 |
-| `end_date`| `DATE` | | 项目结束日期 |
-
-#### `categories` - 分类表
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 分类唯一标识符 |
-| `user_id` | `INTEGER` | `FOREIGN KEY` (references `users.id`) | 关联的用户 (NULL为系统预设) |
-| `parent_category_id` | `INTEGER` | `FOREIGN KEY` (references `categories.id`) | 父分类ID，实现多级分类 |
-| `name` | `VARCHAR(50)` | `NOT NULL` | 分类名称 (e.g., "餐饮") |
-| `type` | `VARCHAR(10)` | `NOT NULL` | 'income' 或 'expense' |
-| `icon_name` | `VARCHAR(50)` | | 用于UI显示的图标名称 |
-
-#### `transactions` - 核心交易表
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 交易唯一标识符 |
-| `user_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `users.id`) | 关联的用户 |
-| `account_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `accounts.id`) | 使用的资金账户 |
-| `project_id`| `INTEGER` | `FOREIGN KEY` (references `projects.id`) | **(新增)** 归属的账务项目 |
-| `category_id` | `INTEGER` | `FOREIGN KEY` (references `categories.id`) | 归属的分类 |
-| `type` | `VARCHAR(10)` | `NOT NULL` | 'income' (收入) 或 'expense' (支出) |
-| `title` | `VARCHAR(255)`| | 交易摘要 (可选) |
-| `amount` | `DECIMAL(10, 2)`| `NOT NULL`, `CHECK (amount >= 0)` | **金额 (总是正数)** |
-| `currency` | `VARCHAR(3)` | `NOT NULL` | 货币类型 (e.g., 'CNY') |
-| `transaction_date`| `TIMESTAMP` | `NOT NULL` | **业务发生时间** |
-| `notes` | `TEXT` | | 详细备注 |
-| `created_at` | `TIMESTAMP` | `NOT NULL`, `DEFAULT CURRENT_TIMESTAMP` | **记录创建时间** |
-
-#### `tags` 和 `transaction_tags` - 标签体系
-**`tags` 表**
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 标签唯一标识符 |
-| `user_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `users.id`) | 关联的用户 |
-| `name` | `VARCHAR(50)` | `NOT NULL` | 标签名称 |
-
-**`transaction_tags` (连接表)**
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `transaction_id` | `INTEGER` | `PRIMARY KEY`, `FOREIGN KEY` | 关联的交易 |
-| `tag_id` | `INTEGER` | `PRIMARY KEY`, `FOREIGN KEY` | 关联的标签 |
-
-#### `budgets` - 预算表
-| 字段名 | 数据类型 | 约束 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 预算唯一标识符 |
-| `user_id` | `INTEGER` | `NOT NULL`, `FOREIGN KEY` (references `users.id`) | 关联的用户 |
-| `category_id` | `INTEGER` | `FOREIGN KEY` (references `categories.id`) | 预算针对的分类 (NULL为总预算) |
-| `amount` | `DECIMAL(10, 2)`| `NOT NULL` | 预算金额 |
-| `period` | `VARCHAR(20)` | `NOT NULL` | 预算周期 (e.g., 'monthly') |
-| `start_date`| `DATE` | `NOT NULL` | 预算周期开始日期 |
-
----
-
-## 6. 开发注意事项
-
-1.  **SQLite 外键支持**: 在 FastAPI 应用中，数据库连接建立后，必须先执行 `PRAGMA foreign_keys = ON;` 来启用外键约束。建议在数据库连接的依赖项中处理。
-2.  **API 设计**: 遵循 RESTful 风格设计 API 端点，保持接口的清晰和一致性。
-3.  **密码安全**: 绝对不能明文存储密码。使用 `passlib` 等库对用户密码进行哈希加盐处理。
-4.  **开发顺序建议**:
-    1.  **阶段一 (核心后端)**: 搭建 FastAPI 项目，实现用户认证 (`users` 表)，完成 `accounts`, `categories`, `transactions` 表的 CRUD 接口。
-    2.  **阶段二 (核心前端)**: 搭建 Vue 项目，完成登录、注册页面，实现核心的记账流水显示和添加功能。
-    3.  **阶段三 (功能完善)**: 依次实现“账务项目”、“预算”、“标签”等功能，前后端同步进行。
-    4.  **阶段四 (数据分析)**: 开发仪表盘页面，对接后端分析接口，完成数据可视化。
-
----
-
-## 7. 🐳 Docker 部署
-
-项目已完全容器化，支持一键部署到开发和生产环境。
-
-### 快速部署
+### 一键部署
 
 ```bash
-# 1. 配置环境变量
-cp .env.example .env
-nano .env  # 修改 SECRET_KEY 等关键配置
+# 1. 克隆项目
+git clone https://github.com/your-username/monika.git
+cd monika
 
-# 2. 一键部署
-./deploy.sh dev   # 开发环境
-./deploy.sh prod  # 生产环境
+# 2. 启动服务
+docker compose up -d
+
+# 3. 访问应用
+# 前端: http://localhost:8080
+# 后端API: http://localhost:8000
+# API文档: http://localhost:8000/docs
 ```
 
-### 访问地址
-- **前端应用**: http://localhost
-- **后端API**: http://localhost:8000
-- **API文档**: http://localhost:8000/docs
+详细部署说明请参考 [部署指南](DEPLOYMENT.md)
 
-### 常用命令
-```bash
-./deploy.sh dev      # 开发环境部署
-./deploy.sh prod     # 生产环境部署
-./deploy.sh backup   # 数据库备份
-./deploy.sh logs     # 查看日志
-./deploy.sh stop     # 停止服务
-./deploy.sh cleanup  # 清理资源
-```
-
-详细部署说明请参考 [Docker部署指南](DOCKER_DEPLOYMENT.md)
-
----
-
-## 8. 项目特性
+## ✨ 功能特性
 
 ### ✅ 已实现功能
-- 🔐 用户认证系统（注册、登录、JWT）
-- 💰 账户管理（多种账户类型支持）
-- 📊 项目管理（按项目分组管理交易）
-- 💸 交易记录管理（完整的CRUD操作）
-- 📈 仪表盘（财务概览和统计）
-- 🏷️ 分类系统（收入/支出分类）
-- 🐳 Docker容器化部署
-- 📱 响应式设计
 
-### 🚧 待开发功能
+- 🔐 **用户认证系统**
+  - 安全的用户注册和登录
+  - JWT Token 认证
+  - 密码加密存储
+
+- 💰 **账户管理**
+  - 多种账户类型支持（储蓄卡、信用卡、现金等）
+  - 账户余额跟踪
+  - 账户状态管理
+
+- 📊 **项目管理**
+  - 按项目分组管理交易记录
+  - 项目时间范围设定
+  - 项目财务统计
+
+- 💸 **交易记录管理**
+  - 完整的收支记录 CRUD 操作
+  - 交易分类和标注
+  - 交易历史查询
+
+- 📈 **财务仪表盘**
+  - 收支概览统计
+  - 账户余额展示
+  - 最近交易记录
+
+- 🏷️ **分类系统**
+  - 收入/支出分类管理
+  - 多级分类支持
+  - 自定义分类图标
+
+- 🐳 **Docker 容器化**
+  - 一键部署
+  - 开发/生产环境支持
+  - 数据持久化
+
+- 📱 **响应式设计**
+  - 移动端适配
+  - 现代化 UI 界面
+
+### 🚧 计划中功能
+
 - 💰 预算管理系统
 - 🏷️ 标签系统
 - 📊 高级数据可视化
 - 📈 支出模式分析
 - 📤 数据导入/导出
 - 🔔 异常支出提醒
+- 📊 财务报表生成
+
+## 🛠️ 技术栈
+
+### 后端
+- **FastAPI**: 高性能异步 Web 框架
+- **SQLAlchemy**: ORM 数据库操作
+- **SQLite**: 轻量级数据库
+- **Pydantic**: 数据验证和序列化
+- **JWT**: 用户认证
+
+### 前端
+- **Vue.js 3**: 渐进式前端框架
+- **Vite**: 现代化构建工具
+- **Element Plus**: UI 组件库
+- **Axios**: HTTP 客户端
+- **Vue Router**: 路由管理
+
+### 部署
+- **Docker**: 容器化部署
+- **Docker Compose**: 多容器编排
+- **Nginx**: 静态文件服务
+
+## 📁 项目结构
+
+```
+monika/
+├── backend/                 # 后端代码
+│   ├── app/                # FastAPI 应用
+│   ├── api/                # API 路由
+│   ├── auth/               # 认证模块
+│   ├── crud/               # 数据库操作
+│   ├── database/           # 数据库配置
+│   ├── models/             # 数据模型
+│   ├── schemas/            # Pydantic 模式
+│   └── Dockerfile          # 后端容器配置
+├── frontend/               # 前端代码
+│   ├── src/                # Vue.js 源码
+│   ├── public/             # 静态资源
+│   └── Dockerfile          # 前端容器配置
+├── data/                   # 数据持久化目录
+├── docs/                   # 项目文档
+├── docker-compose.yml      # Docker Compose 配置
+├── DEPLOYMENT.md           # 部署指南
+└── README.md              # 项目说明
+```
+
+## 🚀 部署指南
+
+### Docker 部署（推荐）
+
+详细部署说明请参考 [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### 开发环境
+
+#### 后端开发
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 前端开发
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## 📚 开发文档
+
+- [API 文档](http://localhost:8000/docs) - 自动生成的 API 文档
+- [开发指南](docs/DEVELOPMENT.md) - 详细的开发说明
+- [数据库设计](docs/DATABASE.md) - 数据库结构说明
+- [部署指南](DEPLOYMENT.md) - 完整的部署说明
+
+## 🤝 贡献指南
+
+欢迎贡献代码！请遵循以下步骤：
+
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 📞 联系方式
+
+如有问题或建议，请通过以下方式联系：
+
+- 提交 [Issue](https://github.com/your-username/monika/issues)
+- 发送邮件至 your-email@example.com
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助，请给它一个星标！**
+
+Made with ❤️ by [Your Name]
+
+</div>
