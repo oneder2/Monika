@@ -2,11 +2,11 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from backend.database.database import get_db
-from backend.schemas.schemas import Token, UserCreate, User as UserSchema
-from backend.crud.crud import create_user, get_user_by_username, get_user_by_email
-from backend.auth.auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
-from backend.models.models import User
+from database.database import get_db
+from schemas.schemas import Token, UserCreate, User as UserSchema
+from crud.crud import create_user, get_user_by_username, get_user_by_email
+from auth.auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
+from models.models import User
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 

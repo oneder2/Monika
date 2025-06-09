@@ -1,14 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.database.database import get_db
-from backend.schemas.schemas import Transaction, TransactionCreate, TransactionUpdate
-from backend.crud.crud import (
-    get_transactions, get_transaction, create_transaction, 
+from database.database import get_db
+from schemas.schemas import Transaction, TransactionCreate, TransactionUpdate
+from crud.crud import (
+    get_transactions, get_transaction, create_transaction,
     update_transaction, delete_transaction
 )
-from backend.auth.auth import get_current_active_user
-from backend.models.models import User
+from auth.auth import get_current_active_user
+from models.models import User
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 

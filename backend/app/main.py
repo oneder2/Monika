@@ -2,9 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from backend.database.database import engine
-from backend.models import models
-from backend.api import auth, users, accounts, projects, transactions
+from database.database import engine
+from models import models
+from api import auth, users, accounts, projects, transactions
 
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
@@ -19,7 +19,7 @@ app = FastAPI(
 # 配置CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"],  # Vue.js开发服务器
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001", "http://localhost:8080", "http://127.0.0.1:8080"],  # Vue.js开发服务器和生产环境
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

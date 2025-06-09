@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, T
 from sqlalchemy.types import DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from backend.database.database import Base
+from database.database import Base
 
 
 class User(Base):

@@ -1,14 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.database.database import get_db
-from backend.schemas.schemas import Account, AccountCreate, AccountUpdate
-from backend.crud.crud import (
-    get_accounts, get_account, create_account, 
+from database.database import get_db
+from schemas.schemas import Account, AccountCreate, AccountUpdate
+from crud.crud import (
+    get_accounts, get_account, create_account,
     update_account, delete_account
 )
-from backend.auth.auth import get_current_active_user
-from backend.models.models import User
+from auth.auth import get_current_active_user
+from models.models import User
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 

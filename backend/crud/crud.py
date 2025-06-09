@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from backend.models.models import User, Account, Project, Category, Transaction, Tag, Budget
-from backend.schemas.schemas import (
+from models.models import User, Account, Project, Category, Transaction, Tag, Budget
+from schemas.schemas import (
     UserCreate, UserUpdate, AccountCreate, AccountUpdate,
     ProjectCreate, ProjectUpdate, CategoryCreate, CategoryUpdate,
     TransactionCreate, TransactionUpdate, TagCreate, TagUpdate,
     BudgetCreate, BudgetUpdate
 )
-from backend.auth.auth import get_password_hash
+from auth.auth import get_password_hash
 
 
 # User CRUD

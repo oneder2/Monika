@@ -2,14 +2,14 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from backend.database.database import get_db
-from backend.schemas.schemas import Project, ProjectCreate, ProjectUpdate, Transaction
-from backend.crud.crud import (
+from database.database import get_db
+from schemas.schemas import Project, ProjectCreate, ProjectUpdate, Transaction
+from crud.crud import (
     get_projects, get_project, create_project,
     update_project, delete_project
 )
-from backend.auth.auth import get_current_active_user
-from backend.models.models import User, Transaction as TransactionModel
+from auth.auth import get_current_active_user
+from models.models import User, Transaction as TransactionModel
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
