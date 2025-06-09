@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: monika-backend
     restart: unless-stopped
+    user: "0:0"  # 使用root用户解决权限问题
     environment:
       - PYTHONPATH=/app
       - DATABASE_URL=sqlite:///./data/monika.db
@@ -14,7 +15,6 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
-
     networks:
       - monika-network
 
