@@ -52,7 +52,7 @@
             <label>账户名称</label>
             <input v-model="form.name" type="text" required placeholder="例如：招商银行储蓄卡" />
           </div>
-          
+
           <div class="form-group">
             <label>账户类型</label>
             <select v-model="form.type" required>
@@ -65,10 +65,10 @@
               <option value="other">其他</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>初始余额</label>
-            <input v-model="form.initial_balance" type="number" step="0.01" required placeholder="0.00" />
+            <input v-model.number="form.initial_balance" type="number" step="0.01" min="0" placeholder="0.00" />
           </div>
           
           <div class="form-group">
@@ -106,7 +106,7 @@ export default {
     const form = ref({
       name: '',
       type: '',
-      initial_balance: 0,
+      initial_balance: 0.00,
       is_active: true
     })
     
@@ -123,7 +123,7 @@ export default {
       form.value = {
         name: '',
         type: '',
-        initial_balance: 0,
+        initial_balance: 0.00,
         is_active: true
       }
     }
@@ -143,26 +143,43 @@ export default {
     
     const saveAccount = async () => {
       loading.value = true
-      
+
       try {
+        // 验证必填字段
+        if (!form.value.name.trim()) {
+          alert('请输入账户名称')
+          loading.value = false
+          return
+        }
+
+        if (!form.value.type) {
+          alert('请选择账户类型')
+          loading.value = false
+          return
+        }
+
         const data = {
           ...form.value,
-          initial_balance: parseFloat(form.value.initial_balance)
+          name: form.value.name.trim(),
+          initial_balance: parseFloat(form.value.initial_balance) || 0.0
         }
-        
+
+        console.log('Sending account data:', data)
+
         if (showEditModal.value) {
           await api.put(`/accounts/${editingId.value}/`, data)
         } else {
           await api.post('/accounts/', data)
         }
-        
+
         await fetchAccounts()
         closeModal()
       } catch (error) {
         console.error('Failed to save account:', error)
+        console.error('Error details:', error.response?.data)
         alert('保存失败，请重试')
       }
-      
+
       loading.value = false
     }
     

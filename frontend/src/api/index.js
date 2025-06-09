@@ -3,10 +3,9 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: '/api',
   timeout: 10000,
-  // 确保URL以斜杠结尾，避免重定向
-  transformRequest: [function (data, headers) {
-    return data;
-  }]
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 // 请求拦截器 - 添加认证token
