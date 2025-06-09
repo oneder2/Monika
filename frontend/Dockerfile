@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 安装依赖（包括开发依赖，用于构建）
-RUN npm ci --only=production --silent
+RUN npm ci --silent
 
 # 复制源代码
 COPY . .
@@ -39,10 +39,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # 复制nginx配置文件
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# 创建nginx用户和必要目录
-RUN addgroup -g 101 -S nginx \
-    && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
-    && mkdir -p /var/log/nginx /var/cache/nginx \
+# 创建必要目录并设置权限
+RUN mkdir -p /var/log/nginx /var/cache/nginx \
     && chown -R nginx:nginx /var/log/nginx /var/cache/nginx /usr/share/nginx/html
 
 # 暴露端口
