@@ -39,6 +39,12 @@ const routes = [
     name: 'Projects',
     component: () => import('../views/Projects.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/auth-test',
+    name: 'AuthTest',
+    component: () => import('../views/AuthTest.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -47,16 +53,36 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
-    next('/dashboard')
-  } else {
-    next()
+
+  // 如果需要认证的页面
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      console.log('Not authenticated, redirecting to login')
+      next('/login')
+      return
+    }
+
+    // 如果有token但没有用户信息，尝试验证token
+    if (authStore.token && !authStore.user) {
+      console.log('Token exists but no user data, validating token')
+      const isValid = await authStore.validateToken()
+      if (!isValid) {
+        console.log('Token validation failed, redirecting to login')
+        next('/login')
+        return
+      }
+    }
   }
+
+  // 如果已登录用户访问登录/注册页面，重定向到仪表盘
+  if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
+    next('/dashboard')
+    return
+  }
+
+  next()
 })
 
 export default router

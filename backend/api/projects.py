@@ -14,7 +14,7 @@ from backend.models.models import User, Transaction as TransactionModel
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@router.get("/", response_model=List[Project])
+@router.get("", response_model=List[Project])
 def read_projects(
     skip: int = 0,
     limit: int = 100,
@@ -26,7 +26,7 @@ def read_projects(
     return projects
 
 
-@router.post("/", response_model=Project)
+@router.post("", response_model=Project)
 def create_project_for_user(
     project: ProjectCreate,
     current_user: User = Depends(get_current_active_user),

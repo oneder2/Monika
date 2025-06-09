@@ -9,6 +9,7 @@
         <router-link to="/transactions">交易记录</router-link>
         <router-link to="/accounts">账户管理</router-link>
         <router-link to="/projects">项目管理</router-link>
+        <router-link to="/auth-test">认证测试</router-link>
         <button @click="logout" class="logout-btn">退出</button>
       </div>
     </nav>

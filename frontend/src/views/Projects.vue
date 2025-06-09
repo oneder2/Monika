@@ -168,7 +168,7 @@ export default {
     
     const fetchProjects = async () => {
       try {
-        const response = await api.get('/projects/')
+        const response = await api.get('/projects')
         projects.value = response.data
 
         // 为每个项目获取统计信息
@@ -222,9 +222,9 @@ export default {
         if (!data.description) data.description = null
         
         if (showEditModal.value) {
-          await api.put(`/projects/${editingId.value}/`, data)
+          await api.put(`/projects/${editingId.value}`, data)
         } else {
-          await api.post('/projects/', data)
+          await api.post('/projects', data)
         }
         
         await fetchProjects()
@@ -250,9 +250,9 @@ export default {
     
     const deleteProject = async (id) => {
       if (!confirm('确定要删除这个项目吗？')) return
-      
+
       try {
-        await api.delete(`/projects/${id}/`)
+        await api.delete(`/projects/${id}`)
         await fetchProjects()
       } catch (error) {
         console.error('Failed to delete project:', error)

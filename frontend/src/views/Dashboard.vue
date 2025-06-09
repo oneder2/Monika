@@ -159,9 +159,9 @@ export default {
     const fetchData = async () => {
       try {
         const [transactionsRes, accountsRes, projectsRes] = await Promise.all([
-          api.get('/transactions/'),
-          api.get('/accounts/'),
-          api.get('/projects/')
+          api.get('/transactions'),
+          api.get('/accounts'),
+          api.get('/projects')
         ])
 
         transactions.value = transactionsRes.data

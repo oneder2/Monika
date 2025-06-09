@@ -13,7 +13,7 @@ from backend.models.models import User
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
-@router.get("/", response_model=List[Transaction])
+@router.get("", response_model=List[Transaction])
 def read_transactions(
     skip: int = 0,
     limit: int = 100,
@@ -25,7 +25,7 @@ def read_transactions(
     return transactions
 
 
-@router.post("/", response_model=Transaction)
+@router.post("", response_model=Transaction)
 def create_transaction_for_user(
     transaction: TransactionCreate,
     current_user: User = Depends(get_current_active_user),

@@ -47,11 +47,14 @@ export const useAuthStore = defineStore('auth', () => {
   
   const fetchUser = async () => {
     try {
-      const response = await api.get('/users/me/')
+      const response = await api.get('/users/me')
       user.value = response.data
+      return true
     } catch (error) {
       console.error('Fetch user error:', error)
+      // 如果获取用户信息失败，清除认证状态
       logout()
+      return false
     }
   }
   
@@ -61,9 +64,26 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
   }
   
-  // 初始化时如果有token，获取用户信息
+  // 验证token有效性的函数
+  const validateToken = async () => {
+    if (!token.value) {
+      return false
+    }
+
+    try {
+      const response = await api.get('/users/me')
+      user.value = response.data
+      return true
+    } catch (error) {
+      console.error('Token validation failed:', error)
+      logout()
+      return false
+    }
+  }
+
+  // 初始化时如果有token，验证其有效性
   if (token.value) {
-    fetchUser()
+    validateToken()
   }
   
   return {
@@ -73,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
-    fetchUser
+    fetchUser,
+    validateToken
   }
 })

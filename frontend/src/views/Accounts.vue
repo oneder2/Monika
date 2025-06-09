@@ -134,7 +134,7 @@ export default {
     
     const fetchAccounts = async () => {
       try {
-        const response = await api.get('/accounts/')
+        const response = await api.get('/accounts')
         accounts.value = response.data
       } catch (error) {
         console.error('Failed to fetch accounts:', error)
@@ -167,9 +167,9 @@ export default {
         console.log('Sending account data:', data)
 
         if (showEditModal.value) {
-          await api.put(`/accounts/${editingId.value}/`, data)
+          await api.put(`/accounts/${editingId.value}`, data)
         } else {
-          await api.post('/accounts/', data)
+          await api.post('/accounts', data)
         }
 
         await fetchAccounts()
@@ -196,9 +196,9 @@ export default {
     
     const deleteAccount = async (id) => {
       if (!confirm('确定要删除这个账户吗？')) return
-      
+
       try {
-        await api.delete(`/accounts/${id}/`)
+        await api.delete(`/accounts/${id}`)
         await fetchAccounts()
       } catch (error) {
         console.error('Failed to delete account:', error)

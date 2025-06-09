@@ -9,13 +9,13 @@ from backend.models.models import User as UserModel
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me/", response_model=User)
+@router.get("/me", response_model=User)
 def read_users_me(current_user: UserModel = Depends(get_current_active_user)):
     """获取当前用户信息"""
     return current_user
 
 
-@router.put("/me/", response_model=User)
+@router.put("/me", response_model=User)
 def update_user_me(
     user_update: UserUpdate,
     current_user: UserModel = Depends(get_current_active_user),

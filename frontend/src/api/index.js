@@ -41,17 +41,39 @@ api.interceptors.response.use(
       originalRequest._retry = true
       const redirectUrl = error.response.headers.location
       if (redirectUrl) {
+        // 确保重定向请求包含Authorization头
+        const token = localStorage.getItem('token')
+        if (token) {
+          originalRequest.headers.Authorization = `Bearer ${token}`
+        }
+
         // 使用重定向的URL重新发送请求
         originalRequest.url = redirectUrl
+        console.log('Redirecting request to:', redirectUrl, 'with auth header:', !!originalRequest.headers.Authorization)
         return api(originalRequest)
       }
     }
 
+    // 处理401认证错误
     if (error.response?.status === 401) {
-      // Token过期或无效，清除本地存储并跳转到登录页
+      console.log('Authentication failed, clearing token and redirecting to login')
+      // Token过期或无效，清除本地存储
       localStorage.removeItem('token')
-      window.location.href = '/login'
+
+      // 避免在登录页面时重复跳转
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
     }
+
+    // 处理其他错误
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      url: originalRequest?.url,
+      method: originalRequest?.method
+    })
+
     return Promise.reject(error)
   }
 )

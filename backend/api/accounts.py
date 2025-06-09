@@ -13,7 +13,7 @@ from backend.models.models import User
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
-@router.get("/", response_model=List[Account])
+@router.get("", response_model=List[Account])
 def read_accounts(
     skip: int = 0,
     limit: int = 100,
@@ -25,7 +25,7 @@ def read_accounts(
     return accounts
 
 
-@router.post("/", response_model=Account)
+@router.post("", response_model=Account)
 def create_account_for_user(
     account: AccountCreate,
     current_user: User = Depends(get_current_active_user),

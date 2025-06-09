@@ -175,7 +175,7 @@ export default {
     
     const fetchTransactions = async () => {
       try {
-        const response = await api.get('/transactions/')
+        const response = await api.get('/transactions')
         transactions.value = response.data
       } catch (error) {
         console.error('Failed to fetch transactions:', error)
@@ -184,7 +184,7 @@ export default {
 
     const fetchAccounts = async () => {
       try {
-        const response = await api.get('/accounts/')
+        const response = await api.get('/accounts')
         accounts.value = response.data
       } catch (error) {
         console.error('Failed to fetch accounts:', error)
@@ -193,7 +193,7 @@ export default {
 
     const fetchProjects = async () => {
       try {
-        const response = await api.get('/projects/')
+        const response = await api.get('/projects')
         projects.value = response.data
       } catch (error) {
         console.error('Failed to fetch projects:', error)
@@ -202,7 +202,7 @@ export default {
     
     const saveTransaction = async () => {
       loading.value = true
-      
+
       try {
         const data = {
           ...form.value,
@@ -210,20 +210,41 @@ export default {
           currency: 'CNY',
           project_id: form.value.project_id || null
         }
-        
+
+        console.log('Saving transaction with data:', data)
+        console.log('Edit mode:', showEditModal.value, 'ID:', editingId.value)
+
+        let response
         if (showEditModal.value) {
-          await api.put(`/transactions/${editingId.value}/`, data)
+          response = await api.put(`/transactions/${editingId.value}`, data)
+          console.log('Update response:', response)
         } else {
-          await api.post('/transactions/', data)
+          response = await api.post('/transactions', data)
+          console.log('Create response:', response)
         }
-        
+
         await fetchTransactions()
         closeModal()
       } catch (error) {
         console.error('Failed to save transaction:', error)
-        alert('保存失败，请重试')
+        console.error('Error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message
+        })
+
+        let errorMessage = '保存失败，请重试'
+        if (error.response?.data?.detail) {
+          errorMessage = `保存失败: ${error.response.data.detail}`
+        } else if (error.response?.status === 401) {
+          errorMessage = '认证失败，请重新登录'
+        } else if (error.response?.status === 422) {
+          errorMessage = '数据格式错误，请检查输入'
+        }
+
+        alert(errorMessage)
       }
-      
+
       loading.value = false
     }
     
@@ -243,9 +264,9 @@ export default {
     
     const deleteTransaction = async (id) => {
       if (!confirm('确定要删除这笔交易吗？')) return
-      
+
       try {
-        await api.delete(`/transactions/${id}/`)
+        await api.delete(`/transactions/${id}`)
         await fetchTransactions()
       } catch (error) {
         console.error('Failed to delete transaction:', error)
@@ -332,7 +353,7 @@ export default {
 
 .table-header {
   display: grid;
-  grid-template-columns: 150px 1fr 80px 120px 150px 120px;
+  grid-template-columns: 150px 1fr 80px 120px 150px 120px 120px;
   gap: 1rem;
   padding: 1rem;
   background: #f8f9fa;
@@ -342,7 +363,7 @@ export default {
 
 .table-row {
   display: grid;
-  grid-template-columns: 150px 1fr 80px 120px 150px 120px;
+  grid-template-columns: 150px 1fr 80px 120px 150px 120px 120px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #ecf0f1;
