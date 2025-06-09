@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    image: ${DOCKER_REGISTRY}/monika-backend:${IMAGE_TAG:-latest}
+    container_name: monika-backend-prod
+    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:///./data/monika.db
+      - SECRET_KEY=${SECRET_KEY}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      - ENVIRONMENT=production
+    volumes:
+      - monika-data:/app/data
+      - monika-logs:/app/logs
+    ports:
+      - "8000:8000"
+    networks:
+      - monika-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端服务
+  frontend:
+    image: ${DOCKER_REGISTRY}/monika-frontend:${IMAGE_TAG:-latest}
+    container_name: monika-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - monika-network
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro  # SSL证书挂载
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 数据库备份服务
+  db-backup:
+    image: alpine:latest
+    container_name: monika-backup-prod
+    restart: "no"
+    volumes:
+      - monika-data:/data
+      - monika-backups:/backups
+    command: >
+      sh -c "
+        mkdir -p /backups &&
+        cp /data/monika.db /backups/monika-backup-$$(date +%Y%m%d-%H%M%S).db &&
+        find /backups -name 'monika-backup-*.db' -mtime +7 -delete &&
+        echo 'Database backup completed and old backups cleaned'
+      "
+    profiles:
+      - backup
+
+  # 日志收集服务（可选）
+  log-collector:
+    image: fluent/fluent-bit:latest
+    container_name: monika-logs-prod
+    restart: unless-stopped
+    volumes:
+      - monika-logs:/var/log/monika
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    networks:
+      - monika-network
+    profiles:
+      - logging
+
+networks:
+  monika-network:
+    driver: bridge
+
+volumes:
+  monika-data:
+    driver: local
+  monika-backups:
+    driver: local
+  monika-logs:
+    driver: local
