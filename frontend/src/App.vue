@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <nav class="navbar">
+  <div id="app" :class="{ 'login-page': isLoginPage }">
+    <nav class="navbar" v-if="!isLoginPage">
       <div class="nav-brand">
         <h1>Monika</h1>
       </div>
@@ -13,8 +13,8 @@
         <button @click="logout" class="logout-btn">退出</button>
       </div>
     </nav>
-    
-    <main class="main-content">
+
+    <main class="main-content" :class="{ 'login-main': isLoginPage }">
       <router-view />
     </main>
   </div>
@@ -22,24 +22,27 @@
 
 <script>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
 export default {
   name: 'App',
   setup() {
     const router = useRouter()
+    const route = useRoute()
     const authStore = useAuthStore()
-    
+
     const isAuthenticated = computed(() => authStore.isAuthenticated)
-    
+    const isLoginPage = computed(() => route.path === '/login' || route.path === '/register')
+
     const logout = () => {
       authStore.logout()
       router.push('/login')
     }
-    
+
     return {
       isAuthenticated,
+      isLoginPage,
       logout
     }
   }
@@ -117,6 +120,20 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* 登录页面样式 */
+#app.login-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+#app.login-page body {
+  background: none;
 }
 
 .navbar {
@@ -218,6 +235,13 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   min-height: calc(100vh - 80px);
+}
+
+.main-content.login-main {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  min-height: 100vh;
 }
 
 /* 全局按钮样式 */
