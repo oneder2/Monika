@@ -199,7 +199,7 @@ npm run dev
 如有问题或建议，请通过以下方式联系：
 
 - 提交 [Issue](https://github.com/your-username/monika/issues)
-- 发送邮件至 your-email@example.com
+- 发送邮件至 gellar@tutanota.com
 
 ---
 
@@ -207,6 +207,6 @@ npm run dev
 
 **⭐ 如果这个项目对你有帮助，请给它一个星标！**
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by Oneder2/Gellar, and Augment/Gemini
 
 </div>
